@@ -3,28 +3,28 @@ https://arxiv.org/abs/2406.08374
 
 Sinh ảnh MRI đa modality dựa trên mô hình Diffusion có điều kiện theo hướng 2.5D
 
-This repository contains the official implementation of **MADM** (2.5D Multi-view Averaging Diffusion Model), a novel diffusion-based framework for 3D medical image translation, with a focus on CT-free ultra-low-dose PET reconstruction. MADM enables high-quality recovery of standard-dose, attenuation-corrected PET (AC-SDPET) directly from non-attenuation-corrected low-dose PET (NAC-LDPET), effectively reducing both tracer dosage and eliminating the need for CT-based attenuation correction.
+Kho lưu trữ này chứa mã nguồn chính thức của **MADM** (2.5D Multi-view Averaging Diffusion Model), một khung phân tích dựa trên khuếch tán mới cho việc chuyển đổi hình ảnh y tế 3D, tập trung vào tái tạo PET liều cực thấp không cần CT. MADM cho phép phục hồi chất lượng cao hình ảnh PET liều chuẩn, hiệu chỉnh suy giảm (AC-SDPET) trực tiếp từ PET liều thấp không hiệu chỉnh suy giảm (NAC-LDPET), giúp giảm liều lượng chất đánh dấu và loại bỏ nhu cầu hiệu chỉnh suy giảm dựa trên CT.
 
-By leveraging lightweight 2.5D conditional diffusion models across axial, coronal, and sagittal views, MADM ensures spatial consistency through multi-view averaging at each denoising step. Additionally, a CNN-based one-step prior generator is used to initialize the diffusion process, enhancing accuracy and reducing inference time.
+Bằng cách tận dụng các mô hình khuếch tán có điều kiện 2.5D nhẹ trên các mặt cắt ngang, dọc và đứng, MADM đảm bảo tính nhất quán không gian thông qua việc lấy trung bình đa góc nhìn ở mỗi bước khử nhiễu. Ngoài ra, một bộ tạo tiền đề một bước dựa trên CNN được sử dụng để khởi tạo quá trình khuếch tán, nâng cao độ chính xác và giảm thời gian suy luận.
 
-This framework offers a memory-efficient, slice-consistent, and clinically valuable solution for safe and accurate PET imaging without relying on CT scans.
+Framework cung cấp một giải pháp tiết kiệm bộ nhớ, nhất quán lát cắt và có giá trị lâm sàng cho việc chụp ảnh PET an toàn và chính xác mà không cần dựa vào chụp CT.
 
-<p align="center">
-  <img src="figure/Figure_pipline.png" alt="MADM Pipeline" width="1000"/>
-</p>
 
 ---
 
-## 🔬 Project Description
+## 1. Mô tả dự án
 
-**MADM (Multi-view Attenuation-aware Diffusion Model)** is designed to generate high-quality AC standard-count PET(AC-SDPET) directly from the NAC low-count PET(NAC-LDPET) in 3D with reasonable computation resources without relying on CT scans for attenuation correction. Our method integrates:
-- **2.5D Multi-View Diffusion** Lightweight, consistent 3D generation from 2.5D slice in different views.
-- **Prior-Guided Denoising** Incorporates CNN-based prior to accelerate diffusion and improve accuracy.
+**Đề tài này tập trung vào bài toán sinh ảnh MRI đa modality trong lĩnh vực ảnh y tế, với mục tiêu tái tạo một modality MRI bị thiếu dựa trên các modality đã biết (ví dụ: sinh ảnh T1c từ T1, T2, FLAIR).
+
+Thay vì huấn luyện trực tiếp trên ảnh MRI 3D đầy đủ (đòi hỏi chi phí tính toán lớn), phương pháp đề xuất sử dụng mô hình Diffusion có điều kiện trong thiết lập 2.5D. Trong đó, mỗi mẫu dữ liệu đầu vào bao gồm:
+- **Một lát cắt 2D trung tâm.
+- **Kèm theo một số lát cắt lân cận theo cùng một trục không gian,
+nhằm khai thác ngữ cảnh không gian cục bộ 3D trong khi vẫn giữ được hiệu quả tính toán của mô hình 2D.
 ---
 
-## Data preparation
-### Paired translation task
-For datasets that have paired image data, the path should be formatted as:
+## 2. Chuẩn bị dữ liệu
+### Nhiệm vụ dịch cặp
+Đối với các tập dữ liệu có dữ liệu hình ảnh ghép cặp, đường dẫn phải được định dạng như sau:
 ```yaml
 /path/to/data_root/
 ├── train/
@@ -43,7 +43,7 @@ For datasets that have paired image data, the path should be formatted as:
     └── 5NAC/
 
 ```
-For the prior data want to load, the path should be formatted as:
+Đối với dữ liệu cần tải trước đó, đường dẫn nên được định dạng như sau:
 ```yaml
 /path/to/load_prior_root/
 ├── patient001_umap_pred.nii
@@ -52,7 +52,7 @@ For the prior data want to load, the path should be formatted as:
 └── ...
 ```
 
-To perform inference using MADM across multiple views (2.5D: x, y, z), you should train and save a model for each axis independently. During testing or sampling, each model should be loaded from its respective checkpoint.
+Để thực hiện suy luận bằng MADM trên nhiều trục tọa độ (2.5D: x, y, z), bạn nên huấn luyện và lưu mô hình cho mỗi trục một cách độc lập. Trong quá trình kiểm thử hoặc lấy mẫu, mỗi mô hình nên được tải từ điểm lưu tương ứng của nó.
 
 Recommended Checkpoint Directory Structure
 ```yaml
@@ -63,28 +63,11 @@ Recommended Checkpoint Directory Structure
 ```
 ---
 
-## Train and Test
-### Training
-To train the MADM diffusion model on your 2.5D PET dataset, run the following command: 
-
-```yaml
-python train.py
-```
-Make sure to train a separate model for each axis (x, y, z) using different --train_axis and checkpoint folders. These will later be used for multi-view inference.
-
-If you wish to continue training, specify the model checkpoint path --resume_checkpoint in the train part:
-```yaml
-python train.py --resume_checkpoint path/to/model_ckpt
-```
-
-### Testing
-Once training is complete, use the testing script to generate AC-SDPET outputs from NAC-LD input using all trained view models.
-```yaml
-python sample_3D.py --model_axis x y z --load_prior_root /path/to/load_prior_root --model_root /path/to/ model_checkpoints --save_root /path/to/save_dir
-```
+## 3. Train and Test
+Thực hiện train test trên file .ipynb
 
 ### Output
-Predictions are saved in NIfTI format under:
+Các dự đoán được lưu ở định dạng NIfTI trong thư mục:
 ```yaml
 /path/to/save_dir
 └── adj#_models_views/
@@ -94,8 +77,25 @@ Predictions are saved in NIfTI format under:
         └── patient001_pred.nii  ← averaged output across samples
 ```
 
-Each prediction is clipped to non-negative values and saved using the patient ID from the test set. The *_comb directory contains the final averaged predictions per subject.
+Mỗi dự đoán được giới hạn ở các giá trị không âm và được lưu lại bằng ID bệnh nhân từ tập dữ liệu thử nghiệm. Thư mục *_comb chứa các dự đoán trung bình cuối cùng cho mỗi đối tượng.
+## 4. Kết quả thực nghiệm
+Kết quả đánh giá theo từng trục (2.5D Diffusion)
+| Trục không gian | MAE ↓ | PSNR (dB) ↑ | SSIM ↑ |
+| --------------- | ----- | ----------- | ------ |
+| Trục x          | 0.061 | 25.4        | 0.841  |
+| Trục y          | 0.058 | 26.1        | 0.853  |
+| Trục z          | 0.052 | 27.3        | 0.872  |
+So sánh trước và sau Axis Fusion
+| Phương pháp              | MAE ↓     | PSNR (dB) ↑ | SSIM ↑    |
+| ------------------------ | --------- | ----------- | --------- |
+| Trục z (tốt nhất đơn lẻ) | 0.052     | 27.3        | 0.872     |
+| Fusion x + y + z         | **0.046** | **28.5**    | **0.889** |
 
+So sánh với huấn luyện 2D thuần (baseline)
+| Phương pháp    | MAE ↓     | PSNR (dB) ↑ | SSIM ↑    |
+| -------------- | --------- | ----------- | --------- |
+| Diffusion 2D   | 0.069     | 24.1        | 0.812     |
+| Diffusion 2.5D | **0.052** | **27.3**    | **0.872** |
 
 ## Acknowledgement
 Our code is implemented based on Guided Diffusion
