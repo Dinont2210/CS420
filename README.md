@@ -85,6 +85,7 @@ Kết quả đánh giá theo từng trục (2.5D Diffusion)
 | Trục x          | 0.061 | 25.4        | 0.841  |
 | Trục y          | 0.058 | 26.1        | 0.853  |
 | Trục z          | 0.052 | 27.3        | 0.872  |
+
 So sánh trước và sau Axis Fusion
 | Phương pháp              | MAE ↓     | PSNR (dB) ↑ | SSIM ↑    |
 | ------------------------ | --------- | ----------- | --------- |
