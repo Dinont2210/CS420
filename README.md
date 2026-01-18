@@ -1,7 +1,7 @@
-### [MADM: 2.5D Multi-view Averaging Diffusion Model for 3D Medical Image Translation: Application to Low-count PET Reconstruction with CT-less Attenuation Correction](https://arxiv.org/abs/2406.08374)
+### CS420
 https://arxiv.org/abs/2406.08374
 
-**Tianqi Chen, Jun Hou, Yinchi Zhou, Huidong Xie, Xiongchao Chen, Qiong Liu, Xueqi Guo, Menghua Xia, James S. Duncan, Chi Liu, Bo Zhou**
+Sinh ảnh MRI đa modality dựa trên mô hình Diffusion có điều kiện theo hướng 2.5D
 
 This repository contains the official implementation of **MADM** (2.5D Multi-view Averaging Diffusion Model), a novel diffusion-based framework for 3D medical image translation, with a focus on CT-free ultra-low-dose PET reconstruction. MADM enables high-quality recovery of standard-dose, attenuation-corrected PET (AC-SDPET) directly from non-attenuation-corrected low-dose PET (NAC-LDPET), effectively reducing both tracer dosage and eliminating the need for CT-based attenuation correction.
 
